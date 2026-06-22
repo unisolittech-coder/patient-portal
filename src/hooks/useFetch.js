@@ -19,9 +19,17 @@ function useFetch() {
       };
 
       const result = await axios(axiosConfig);
+      if (result.data?.message === 'Token expired.') {
+        sessionStorage.clear();
+        window.location.href = '/';
+      }
       return result.data;
     } catch (error) {
       // eslint-disable-next-line no-console
+      if (error.response?.data?.message === 'Token expired.' || error.message === 'Token expired.') {
+        sessionStorage.clear();
+        window.location.href = '/';
+      }
       console.error(
         `Error fetching data from ${url}:`,
         error.message,
