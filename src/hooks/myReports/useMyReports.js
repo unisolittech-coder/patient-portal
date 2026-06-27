@@ -30,8 +30,8 @@ export default function useMyReports() {
             console.error("Fetch reports error:", error);
             return false;
         }
-        finally {    
-          setLoading(false);
+        finally {
+            setLoading(false);
         }
     };
 
@@ -52,9 +52,29 @@ export default function useMyReports() {
             return false;
         }
         finally {
-          setLoading(false);
+            setLoading(false);
         }
     };
+
+    const reportDownload = async (id) => {
+        setLoading(true);
+        try {
+            const res = await fetchData({
+                method: "POST",
+                url: `${conf.apiBaseUrl}patient-auth/reports/download/${id}`
+            });
+            if (res) {
+                setLoading(false);
+                return res;
+            }
+        } catch (error) {
+            console.error("Fetch report details error:", error);
+            return null;
+        }
+        finally {
+            setLoading(false);
+        }
+    }
 
     const resetReportDetails = () => {
         setReportsDetails(null);
@@ -66,6 +86,7 @@ export default function useMyReports() {
         reportsDetails,
         fetchReports,
         fetchReportDetails,
-        resetReportDetails
+        resetReportDetails,
+        reportDownload
     };
-    }
+}

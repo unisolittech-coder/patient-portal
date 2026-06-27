@@ -174,7 +174,7 @@ export default function Login() {
                                         ? "Verifying..."
                                         : "Verify OTP"}
                                 </button>
-
+{/* 
                                 <button
                                     type="button"
                                     onClick={() => {
@@ -184,7 +184,7 @@ export default function Login() {
                                     className="w-full text-blue-600 text-sm font-medium hover:text-blue-700"
                                 >
                                     Change Mobile Number
-                                </button>
+                                </button> */}
                             </form>
                         </>
                     )}

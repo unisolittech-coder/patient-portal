@@ -1,12 +1,15 @@
 import React, { useEffect } from "react";
 import useMyReports from "../../hooks/myReports/useMyReports";
 import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
 
 export default function ReportView() {
   const {
     reportsDetails,
     fetchReportDetails,
-    resetReportDetails
+    resetReportDetails,
+    reportDownload,
+    downloadLoading
   } = useMyReports();
 
   const { id } = useParams();
@@ -18,6 +21,73 @@ export default function ReportView() {
 
     return () => resetReportDetails();
   }, [id]);
+
+  const downloadFile = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+      return true;
+    } catch (error) {
+      console.error('Download failed:', error);
+      throw error;
+    }
+  };
+
+  const handleDownload = async (medicalInformationId, reportName, reportUrl) => {
+    try {
+      console.log("Starting download for:", { medicalInformationId, reportName, reportUrl });
+      
+      // Call the API to get the download URL
+      const response = await reportDownload(medicalInformationId);
+      console.log("API Response:", response);
+      
+      if (response && response.data) {
+        console.log("Response data:", response.data);
+        
+        // Check if response has reports object
+        if (response.data.reports && response.data.reports[reportName]) {
+          const downloadUrl = response.data.reports[reportName];
+          console.log("Download URL:", downloadUrl);
+          
+          // Download the file
+          await downloadFile(downloadUrl, `${reportName}.pdf`);
+          toast.success(`${reportName} downloaded successfully!`);
+        } else {
+          console.error("Report not found in response:", response.data);
+          toast.error("Report URL not found in response");
+        }
+      } else {
+        console.error("Invalid response:", response);
+        toast.error("Failed to get download URL from API");
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      toast.error(`Error downloading report: ${error.message}`);
+    }
+  };
+
+  // Alternative: Direct download without API call (if you already have the URL)
+  const handleDirectDownload = async (reportUrl, reportName) => {
+    try {
+      console.log("Direct download:", { reportUrl, reportName });
+      await downloadFile(reportUrl, `${reportName}.pdf`);
+      toast.success(`${reportName} downloaded successfully!`);
+    } catch (error) {
+      console.error("Direct download error:", error);
+      toast.error(`Failed to download: ${error.message}`);
+    }
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -35,7 +105,8 @@ export default function ReportView() {
       {/* Report Cards */}
       <div className="space-y-4">
         {reportsDetails &&
-          Object.entries(reportsDetails).map(
+          reportsDetails.reports && 
+          Object.entries(reportsDetails.reports).map(
             ([reportName, reportUrl]) => (
               <div
                 key={reportName}
@@ -65,20 +136,38 @@ export default function ReportView() {
                     href={reportUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 h-11 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2"
+                    className="flex-1 h-11 bg-blue-600 text-white rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors"
                   >
                     <i className="pi pi-eye"></i>
                     View
                   </a>
 
-                  <a
-                    href={reportUrl}
-                    download
-                    className="flex-1 h-11 border border-blue-600 text-blue-600 rounded-xl flex items-center justify-center gap-2"
+                  <button
+                    onClick={() => handleDownload(
+                      reportsDetails.medicalInformationId, 
+                      reportName, 
+                      reportUrl
+                    )}
+                    disabled={downloadLoading}
+                    className="flex-1 h-11 border border-blue-600 text-blue-600 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <i className="pi pi-download"></i>
-                    Download
-                  </a>
+                    {downloadLoading ? (
+                      <>
+                        <i className="pi pi-spin pi-spinner"></i>
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <i className="pi pi-download"></i>
+                        Download
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Debug info - remove in production */}
+                <div className="mt-2 text-xs text-gray-400">
+                  <p>Report URL: {reportUrl.substring(0, 50)}...</p>
                 </div>
               </div>
             )
