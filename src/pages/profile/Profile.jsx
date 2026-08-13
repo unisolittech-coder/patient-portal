@@ -31,21 +31,12 @@ const Profile = () => {
                     </h2>
 
                     <p className="text-blue-100">
-                        Patient ID: {patientProfile?.patientId}
+                        Patient ID: {patientProfile?.uhid || "-"}
                     </p>
                 </div>
 
                 {/* Details */}
                 <div className="p-5 space-y-4">
-
-                    <div className="flex items-center justify-between border-b pb-3">
-                        <span className="text-gray-500">
-                            Gender
-                        </span>
-                        <span className="font-semibold text-gray-800">
-                            {patientProfile?.gender || "-"}
-                        </span>
-                    </div>
 
                     <div className="flex items-center justify-between border-b pb-3">
                         <span className="text-gray-500">
@@ -58,19 +49,20 @@ const Profile = () => {
 
                     <div className="flex items-center justify-between border-b pb-3">
                         <span className="text-gray-500">
-                            Aadhaar Number
+                            Aabha Number
                         </span>
                         <span className="font-semibold text-gray-800">
-                            {patientProfile?.aadhaarNumber || "-"}
+                            {patientProfile?.abhaNumber || "-"}
                         </span>
                     </div>
+
 
                     <div className="flex items-center justify-between border-b pb-3">
                         <span className="text-gray-500">
                             Patient ID
                         </span>
                         <span className="font-semibold text-gray-800">
-                            {patientProfile?.patientId || "-"}
+                            {patientProfile?.uhid || "-"}
                         </span>
                     </div>
 
