@@ -43,9 +43,15 @@ export default function MyReports() {
                   </h3>
                 </div>
 
-                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
-                  <i className="pi pi-file text-blue-600"></i>
-                </div>
+                {report?.images && report?.images.length > 0 && (
+                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                    <img
+                      src={report.images[0]}
+                      alt="Report preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
 
               {/* Report Types */}

@@ -45,7 +45,7 @@ export default function Login() {
 
         onSubmit: async (values) => {
             const success = await verifyOtp({
-                patientId: sessionStorage.getItem("patientId"),
+                uhid: sessionStorage.getItem("uhid"),
                 otp: values.otp,
             });
 
