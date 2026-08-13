@@ -8,6 +8,7 @@ import { reportsAtom, reportsDetailsAtom } from "../../state/myReports/myReportS
 export default function useMyReports() {
     const [fetchData] = useFetch();
     const [loading, setLoading] = useState(false);
+    const [downloadLoading, setDownloadLoading] = useState(false);
     const [reports, setReports] = useRecoilState(reportsAtom);
     const [reportsDetails, setReportsDetails] = useRecoilState(reportsDetailsAtom);
 
@@ -19,11 +20,11 @@ export default function useMyReports() {
             if (reportName) params.append("reportName", reportName);
             const res = await fetchData({
                 method: "GET",
-                url: `${conf.apiBaseUrl}patient-auth/reports?${params.toString()}`
+                url: `${conf.apiBaseUrl}patient-auth/report-details?${params.toString()}`
             });
             if (res) {
                 setLoading(false);
-                setReports(res.data);
+                setReports(res?.data?.reports || res?.data || []);
                 return true;
             }
         } catch (error) {
@@ -40,7 +41,7 @@ export default function useMyReports() {
         try {
             const res = await fetchData({
                 method: "GET",
-                url: `${conf.apiBaseUrl}patient-auth/reports/${id}`
+                url: `${conf.apiBaseUrl}patient-auth/report-details/${id}`
             });
             if (res) {
                 setLoading(false);
@@ -57,14 +58,14 @@ export default function useMyReports() {
     };
 
     const reportDownload = async (id) => {
-        setLoading(true);
+        setDownloadLoading(true);
         try {
             const res = await fetchData({
                 method: "POST",
-                url: `${conf.apiBaseUrl}patient-auth/reports/download/${id}`
+                url: `${conf.apiBaseUrl}patient-auth/report-details/download/${id}`
             });
             if (res) {
-                setLoading(false);
+                setDownloadLoading(false);
                 return res;
             }
         } catch (error) {
@@ -72,7 +73,7 @@ export default function useMyReports() {
             return null;
         }
         finally {
-            setLoading(false);
+            setDownloadLoading(false);
         }
     }
 
@@ -82,6 +83,7 @@ export default function useMyReports() {
 
     return {
         loading,
+        downloadLoading,
         reports,
         reportsDetails,
         fetchReports,

@@ -22,8 +22,9 @@ export default function useLogin() {
             });
             if (res) {
                 setLoading(false);
-                toast.success(res.message + ": " + res.otp);
+                // toast.success(res.message + ": " + res.otp);
                 sessionStorage.setItem("patientId", res.data.patientId);
+                sessionStorage.setItem("uhid", res.data.uhid);
                 return true;
             }
         } catch (error) {
