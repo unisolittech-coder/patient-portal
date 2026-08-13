@@ -1,14 +1,33 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import useMyReports from "../../hooks/myReports/useMyReports";
 
 export default function MyReports() {
-  const { reports, fetchReports } = useMyReports();
-  const navigate = useNavigate();
+  const { reports, fetchReports, loading } = useMyReports();
 
   useEffect(() => {
     fetchReports();
   }, []);
+
+  const handleView = (imageUrl) => {
+    window.open(imageUrl, "_blank");
+  };
+
+  const handleDownload = async (imageUrl, index) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `report-${index + 1}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+    }
+  };
 
   return (
     <div className="p-4 space-y-4">
@@ -22,78 +41,68 @@ export default function MyReports() {
         </p>
       </div>
 
-      {/* Reports List */}
-      <div className="space-y-4">
-        {reports?.length > 0 ? (
-          reports.map((report) => (
-            <div
-              key={report._id}
-              onClick={() => navigate(`/report/${report._id}`)}
-              className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 cursor-pointer hover:shadow-md transition-all"
-            >
-              {/* Top Section */}
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs text-gray-500">
-                    Report Date
-                  </p>
+      {/* Loading */}
+      {loading && (
+        <div className="bg-white rounded-2xl p-8 text-center">
+          <i className="pi pi-spin pi-spinner text-3xl text-blue-500"></i>
+          <p className="mt-3 text-gray-500">Loading reports...</p>
+        </div>
+      )}
 
-                  <h3 className="font-semibold text-gray-800">
-                    {report.dateOfReport}
-                  </h3>
+      {/* Reports List */}
+      {!loading && (
+        <div className="space-y-4">
+          {reports?.length > 0 ? (
+            reports.map((imageUrl, index) => (
+              <div
+                key={index}
+                className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4"
+              >
+                <div className="w-full h-48 rounded-xl overflow-hidden bg-gray-100 mb-4">
+                  <img
+                    src={imageUrl}
+                    alt={`Report ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
-                {report?.images && report?.images.length > 0 && (
-                  <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                    <img
-                      src={report.images[0]}
-                      alt="Report preview"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                )}
-              </div>
-
-              {/* Report Types */}
-              <div className="mt-4 flex flex-wrap gap-2">
-                {report.reportNames?.map((name, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 text-xs rounded-full bg-blue-50 text-blue-700 border border-blue-100"
-                  >
-                    {name}
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500">
+                    Report {index + 1}
                   </span>
-                ))}
-              </div>
 
-              {/* Footer */}
-              <div className="mt-4 flex items-center justify-between">
-                <span className="text-sm text-gray-500">
-                  {report.reportNames?.length} Report
-                  {report.reportNames?.length > 1 ? "s" : ""}
-                </span>
-
-                <span className="text-blue-600 text-sm font-medium flex items-center gap-1">
-                  View
-                  <i className="pi pi-arrow-right"></i>
-                </span>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleView(imageUrl)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-xl flex items-center gap-2 hover:bg-blue-700 transition-colors"
+                    >
+                      <i className="pi pi-eye"></i>
+                      View
+                    </button>
+                    <button
+                      onClick={() => handleDownload(imageUrl, index)}
+                      className="px-4 py-2 border border-blue-600 text-blue-600 rounded-xl flex items-center gap-2 hover:bg-blue-50 transition-colors"
+                    >
+                      <i className="pi pi-download"></i>
+                      Download
+                    </button>
+                  </div>
+                </div>
               </div>
+            ))
+          ) : (
+            <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+              <i className="pi pi-file text-4xl text-gray-300"></i>
+              <h3 className="mt-3 text-lg font-semibold text-gray-700">
+                No Reports Found
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Your medical reports will appear here.
+              </p>
             </div>
-          ))
-        ) : (
-          <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-            <i className="pi pi-file text-4xl text-gray-300"></i>
-
-            <h3 className="mt-3 text-lg font-semibold text-gray-700">
-              No Reports Found
-            </h3>
-
-            <p className="text-sm text-gray-500 mt-1">
-              Your medical reports will appear here.
-            </p>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
