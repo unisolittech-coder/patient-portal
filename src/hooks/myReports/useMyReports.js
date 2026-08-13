@@ -24,7 +24,7 @@ export default function useMyReports() {
             });
             if (res) {
                 setLoading(false);
-                setReports(res?.data?.reports || res?.data || []);
+                setReports(res?.data?.images || res?.data || []);
                 return true;
             }
         } catch (error) {
