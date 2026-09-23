@@ -77,6 +77,27 @@ export default function useMyReports() {
         }
     }
 
+    const patientReportDownload = async (data) => {
+        setDownloadLoading(true);
+        try {
+            const res = await fetchData({
+                method: "POST",
+                url: `${conf.apiBaseUrl}patient-reports/download`,
+                data: data,
+            });
+            if (res) {
+                setDownloadLoading(false);
+                return res;
+            }
+            return null;
+        } catch (error) {
+            console.error("Patient report download error:", error);
+            return null;
+        } finally {
+            setDownloadLoading(false);
+        }
+    };
+
     const resetReportDetails = () => {
         setReportsDetails(null);
     };
@@ -89,6 +110,7 @@ export default function useMyReports() {
         fetchReports,
         fetchReportDetails,
         resetReportDetails,
-        reportDownload
+        reportDownload,
+        patientReportDownload,
     };
 }
