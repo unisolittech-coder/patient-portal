@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import useLogin from "../../hooks/auth/useLogin";
+import IggmcLogo from "../../assets/images/IggmcLogo.webp";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -61,10 +62,12 @@ export default function Login() {
 
                 {/* Logo */}
                 <div className="text-center mb-8">
-                    <div className="w-20 h-20 mx-auto rounded-3xl bg-blue-600 flex items-center justify-center shadow-lg">
-                        <span className="text-3xl text-white font-bold">
-                            P
-                        </span>
+                    <div className="w-20 h-20 mx-auto rounded-3xl overflow-hidden shadow-lg">
+                        <img
+                            src={IggmcLogo}
+                            alt="IGGMC Logo"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
 
                     <h1 className="text-3xl font-bold text-gray-800 mt-4">
