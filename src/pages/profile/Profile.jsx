@@ -31,7 +31,7 @@ const Profile = () => {
                     </h2>
 
                     <p className="text-blue-100">
-                        Patient ID: {patientProfile?.uhid || "-"}
+                        MRID: {patientProfile?.uhid || "-"}
                     </p>
                 </div>
 
@@ -59,7 +59,7 @@ const Profile = () => {
 
                     <div className="flex items-center justify-between border-b pb-3">
                         <span className="text-gray-500">
-                            Patient ID
+                            MRID
                         </span>
                         <span className="font-semibold text-gray-800">
                             {patientProfile?.uhid || "-"}
