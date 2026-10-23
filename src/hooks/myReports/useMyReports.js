@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRecoilState } from "recoil";
 import conf from "../../config/index";
 import useFetch from "../useFetch";
-import { toast } from "react-toastify";
 import { reportsAtom, reportsDetailsAtom } from "../../state/myReports/myReportState";
 
 export default function useMyReports() {
@@ -12,7 +11,7 @@ export default function useMyReports() {
     const [reports, setReports] = useRecoilState(reportsAtom);
     const [reportsDetails, setReportsDetails] = useRecoilState(reportsDetailsAtom);
 
-    const fetchReports = async (date, reportName) => {
+    const fetchReports = useCallback(async (date, reportName) => {
         setLoading(true);
         try {
             const params = new URLSearchParams();
@@ -34,9 +33,9 @@ export default function useMyReports() {
         finally {
             setLoading(false);
         }
-    };
+    }, [fetchData, setLoading, setReports]);
 
-    const fetchReportDetails = async (id) => {
+    const fetchReportDetails = useCallback(async (id) => {
         setLoading(true);
         try {
             const res = await fetchData({
@@ -55,7 +54,7 @@ export default function useMyReports() {
         finally {
             setLoading(false);
         }
-    };
+    }, [fetchData, setLoading, setReportsDetails]);
 
     const reportDownload = async (id) => {
         setDownloadLoading(true);
@@ -98,9 +97,9 @@ export default function useMyReports() {
         }
     };
 
-    const resetReportDetails = () => {
+    const resetReportDetails = useCallback(() => {
         setReportsDetails(null);
-    };
+    }, [setReportsDetails]);
 
     return {
         loading,

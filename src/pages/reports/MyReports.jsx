@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import useMyReports from "../../hooks/myReports/useMyReports";
+import downloadReportPdf from "../../utils/downloadReportPdf";
 
 export default function MyReports() {
   const { reports, fetchReports, loading, patientReportDownload } = useMyReports();
@@ -7,7 +9,7 @@ export default function MyReports() {
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   const handleView = (imageUrl) => {
     window.open(imageUrl, "_blank");
@@ -18,21 +20,13 @@ export default function MyReports() {
     try {
       const res = await patientReportDownload({ _id });
       const reportUrl = res?.data?.report;
-      if (!reportUrl) return;
+      if (!reportUrl) throw new Error("The report download link was not returned.");
 
-      const response = await fetch(reportUrl);
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      // link.download = `report-${_id}.png`;
-      link.download = `report-${index + 1}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      await downloadReportPdf(reportUrl, `report-${index + 1}`);
+      toast.success("Report downloaded as PDF.");
     } catch (error) {
       console.error("Download failed:", error);
+      toast.error(error.message || "Could not download the report as PDF.");
     } finally {
       setDownloadingIds((prev) => {
         const next = new Set(prev);

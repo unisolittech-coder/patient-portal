@@ -1,18 +1,18 @@
-import React, { useEffect } from "react";
+import { useEffect, useState } from "react";
 import useMyReports from "../../hooks/myReports/useMyReports";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import downloadReportPdf from "../../utils/downloadReportPdf";
 
 export default function ReportView() {
   const {
     reportsDetails,
     fetchReportDetails,
     resetReportDetails,
-    reportDownload,
-    downloadLoading
   } = useMyReports();
 
   const { id } = useParams();
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -20,72 +20,18 @@ export default function ReportView() {
     }
 
     return () => resetReportDetails();
-  }, [id]);
+  }, [fetchReportDetails, id, resetReportDetails]);
 
-  const downloadFile = async (url, filename) => {
+  const handleDownload = async (_medicalInformationId, reportName, reportUrl) => {
+    setDownloadLoading(true);
     try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const blob = await response.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(downloadUrl);
-      return true;
-    } catch (error) {
-      console.error('Download failed:', error);
-      throw error;
-    }
-  };
-
-  const handleDownload = async (medicalInformationId, reportName, reportUrl) => {
-    try {
-      console.log("Starting download for:", { medicalInformationId, reportName, reportUrl });
-      
-      // Call the API to get the download URL
-      const response = await reportDownload(medicalInformationId);
-      console.log("API Response:", response);
-      
-      if (response && response.data) {
-        console.log("Response data:", response.data);
-        
-        // Check if response has reports object
-        if (response.data.reports && response.data.reports[reportName]) {
-          const downloadUrl = response.data.reports[reportName];
-          console.log("Download URL:", downloadUrl);
-          
-          // Download the file
-          await downloadFile(downloadUrl, `${reportName}.pdf`);
-          toast.success(`${reportName} downloaded successfully!`);
-        } else {
-          console.error("Report not found in response:", response.data);
-          toast.error("Report URL not found in response");
-        }
-      } else {
-        console.error("Invalid response:", response);
-        toast.error("Failed to get download URL from API");
-      }
+      await downloadReportPdf(reportUrl, reportName);
+      toast.success(`${reportName} downloaded as PDF.`);
     } catch (error) {
       console.error("Download error:", error);
-      toast.error(`Error downloading report: ${error.message}`);
-    }
-  };
-
-  // Alternative: Direct download without API call (if you already have the URL)
-  const handleDirectDownload = async (reportUrl, reportName) => {
-    try {
-      console.log("Direct download:", { reportUrl, reportName });
-      await downloadFile(reportUrl, `${reportName}.pdf`);
-      toast.success(`${reportName} downloaded successfully!`);
-    } catch (error) {
-      console.error("Direct download error:", error);
-      toast.error(`Failed to download: ${error.message}`);
+      toast.error(error.message || "Could not download the report as PDF.");
+    } finally {
+      setDownloadLoading(false);
     }
   };
 
