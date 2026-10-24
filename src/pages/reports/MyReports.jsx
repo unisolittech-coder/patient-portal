@@ -100,9 +100,9 @@ export default function MyReports() {
                 <div className="mt-3 flex flex-wrap gap-x-6 gap-y-1 border-t border-gray-100 pt-3 text-sm text-gray-600">
                   <p><span className="font-medium text-gray-700">MRID:</span> {item?.uhid || "-"}</p>
                   <p>
-                    <span className="font-medium text-gray-700">Report Date:</span>{" "}
-                    {item?.dateOfReport
-                      ? new Date(`${item.dateOfReport}T00:00:00`).toLocaleDateString()
+                    <span className="font-medium text-gray-700">Approval Date:</span>{" "}
+                    {item?.dateOfApproval
+                      ? new Date(`${item.dateOfApproval}T00:00:00`).toLocaleDateString()
                       : "-"}
                   </p>
                 </div>
